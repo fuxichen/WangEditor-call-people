@@ -21,9 +21,9 @@ $(function (){
 });
 ```
 > 该代码是从官网js里扒的，我代码里代理了WangEditor的对象，但因为js执行时机问题一直无法赶在官方代码执行前执行所有需要手动执行一遍
-## 如果将插件合并到真实开发中去
+## 如何将插件合并到真实开发中去
 > 代码中存在 一个 init 函数， 将此函数复制到js中
-然后执行并将 new 出的 wangEditor 对象和一个用户对象数组传递进去
+然后将 new 出的 wangEditor 对象和一个用户对象数组传递进去
 示例如下：
 ```javascript
 let editor = new wangEditor(...param);
