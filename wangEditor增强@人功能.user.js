@@ -38,16 +38,18 @@
         /**
          * 代理编辑器历史记录的保存方法过滤因使用获取光标位置逻辑产生的虚拟节点
          */
-        function proxyHistorySave(history){
+        function proxyHistorySave(history) {
             let save = history.save;
-            history.save = (...params)=>{
-                let flag = params[0][0]?.addedNodes?.[0]?.getAttribute?.("data-data");
+            history.save = (...params) => {
+                let flag = params[0][0]?.addedNodes?.[0]?.getAttribute?.(
+                    "data-data"
+                );
                 console.log(flag);
-                if(flag == "qq632951357-charLen"){
+                if (flag == "qq632951357-charLen") {
                     return;
                 }
-                save.call(history, ...params)
-            }
+                save.call(history, ...params);
+            };
         }
         window.userList = userList;
         // editor.config.uploadImgShowBase64 = true;
@@ -109,7 +111,28 @@
             scrollTipBody(list[index]);
         }
 
-        // 编辑器改变处理事件
+        /**
+         * 点击外部事件
+         * @param {*} el 监听元素
+         * @param {*} callback 回调函数
+         */
+        function clickoutside(el, callback) {
+            let handle = function (event) {
+                if (el && !el.contains(event.target)) {
+                    typeof callback == "function" && callback(removeHandle);
+                }
+            };
+            let removeHandle = function () {
+                document.removeEventListener("click", handle);
+            };
+            document.addEventListener("click", handle);
+            return removeHandle;
+        }
+
+        /**
+         * 编辑器改变处理事件
+         * @param {*} html 改变后数据
+         */
         function changeHandle(html) {
             if (html == oldHtml || userList.length == 0) {
                 return;
@@ -123,9 +146,7 @@
             // 判断选区的起始点和终点是否在同一个位置
             if (range?.focusNode?.isConnected) {
                 currentIndex = 0;
-                if (tipBody) {
-                    tipBody.remove();
-                }
+                removeTipBody();
                 document.removeEventListener("keydown", keyDownFun);
                 if (range.focusOffset == 0) {
                     return;
@@ -154,6 +175,10 @@
                     document.body.appendChild(tipBody);
                     createUserNode(userList, tipBody);
                     createBaseStyle();
+                    clickoutside(tipBody, function (removeHandle) {
+                        removeTipBody();
+                        removeHandle();
+                    });
                     // window.div = div;
                 }
             }
@@ -175,7 +200,8 @@
                 imgDivClassHandle = imgDivClassHandle.disconnect();
                 imgDiv.setAttribute("data-data", "qq632951357-option");
                 let defaultImgUrl = "https://s3.ax1x.com/2021/01/22/s5qlgU.png";
-                let githubImgUrl = "https://avatars3.githubusercontent.com/" + v.name;
+                let githubImgUrl =
+                    "https://avatars3.githubusercontent.com/" + v.name;
                 let imgUrl =
                     v.img ||
                     (v.type == "github" ? githubImgUrl : defaultImgUrl);
@@ -201,6 +227,15 @@
                 };
                 parentNode.appendChild(optionItem);
             });
+        }
+        /**
+         * 删除提示框节点
+         */
+        function removeTipBody() {
+            if (tipBody) {
+                tipBody.remove();
+                tipBody = null;
+            }
         }
         /**
          * 创建提示框节点
