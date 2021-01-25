@@ -358,12 +358,15 @@
         function deleteNode(oldNode, node, range) {
             let flag = false;
             for (let i = 0, len = node.childNodes.length; i < len; i++) {
-                if (oldNode.childNodes[i] == range.focusNode.parentNode) {
+                if (oldNode.childNodes[i] == range.focusNode) {
                     flag = true;
-                    node.childNodes[i].innerText = node.childNodes[
+                    node.childNodes[i].textContent = node.childNodes[
                         i
-                    ].innerText.substr(0, range.focusOffset);
+                    ].textContent.substr(0, range.focusOffset);
                 } else {
+                    if(!node.childNodes[i]){
+                        continue;
+                    }
                     if (flag) {
                         node.childNodes[i].remove();
                     } else if (node.childNodes[i].childNodes.length != 0) {
