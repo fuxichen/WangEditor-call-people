@@ -2,7 +2,8 @@
 WangEditor 编辑器@人功能插件
 > 当前插件代码使用 tampermonkey 编写测试  
 编写时测试环境为 WangEditor官网 https://www.wangeditor.com/ （v4版本）
-
+## 查看文档
+[文档](https://github.com/fuxichen/WangEditor-call-people/blob/main/DOC.MD)
 ## 测试视频
 > ![Image text](https://raw.githubusercontent.com/fuxichen/WangEditor-call-people/main/bandicam%202021-01-24%2017-44-35-382.gif) 
 
