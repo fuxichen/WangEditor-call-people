@@ -53,7 +53,12 @@
         }
         window.userList = userList;
         // editor.config.uploadImgShowBase64 = true;
-        editor.config.onchange = changeHandle;
+        let onchange = editor.config.onchange;
+
+        editor.config.onchange = function(...params){
+          changeHandle(...params)
+          typeof onchange == "function" && onchange(...params);
+        };
 
         let oldHtml = null;
         let currentIndex = 0;
