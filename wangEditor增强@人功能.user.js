@@ -12,6 +12,7 @@
     "use strict";
     // 将已创建的编辑器清空重新生成， 拿到 对应编辑器对象
     document.querySelector("#div-demo").innerHTML = "";
+    document.querySelector("#div-demo").removeAttribute("data-we-id");
     let wangEditor = window.wangEditor;
     window.wangEditor = function (...param) {
         let editor = new wangEditor(...param);
@@ -88,6 +89,56 @@
             }
         };
         function confirmHandle() {
+            let range = document.getSelection().getRangeAt(0)
+            // editor.cmd.do("forwardDelete");
+            // 将 @ 符号选中
+            // document
+            //     .getSelection()
+            //     .getRangeAt(0)
+            //     .setStart(
+            //         document.getSelection().focusNode,
+            //         document.getSelection().focusOffset - 1
+            //     );
+            let text = range.startContainer.data || range.startContainer.textContent
+            let startText = text.substr(0, range.endOffset - 1);
+            let endText = text.substring(range.endOffset, text.length)
+            console.log(startText, "---", endText)
+            let a = document.createElement("a");
+            a.href = userList[currentIndex].url;
+            a.target = "_blank";
+            a.class = "not-select111";
+            a.style.userSelect = "all";
+            a.setAttribute("contenteditable", "false");
+            a.setAttribute("unselectable", "on");
+            a.setAttribute("data-data", "qq632951357-link")
+            a.innerHTML = "@" + userList[currentIndex].name + "&nbsp;";
+            document.getSelection().focusNode.replaceWith(a)
+            if (startText.length) {
+                a.parentNode.insertBefore(document.createTextNode(startText), a)
+            }
+            if (endText.length) {
+                insertAfter(document.createTextNode(endText), a)
+            }
+
+            // 将 @ 符号选中
+            document
+                .getSelection()
+                .getRangeAt(0)
+                .setStartAfter(
+                    a
+                );
+            document
+                .getSelection()
+                .getRangeAt(0)
+                .setEndAfter(
+                    a
+                );
+            // editor.cmd.do(
+            //     "insertHTML",
+            //     `<a href="${userList[currentIndex].url}" target="_blank" class="not-select111" style="user-select: all;" contenteditable="false" unselectable="on" data-data="qq632951357-link">@${userList[currentIndex].name}&nbsp;</a>`
+            // );
+        }
+        function confirmHandle2() {
             editor.cmd.do("forwardDelete");
             // 将 @ 符号选中
             document
@@ -99,7 +150,7 @@
                 );
             editor.cmd.do(
                 "insertHTML",
-                `<a href="${userList[currentIndex].url}" target="_blank" data-data="qq632951357-link">@${userList[currentIndex].name}</a>&nbsp;`
+                `<a href="${userList[currentIndex].url}" target="_blank" class="not-select111" style="user-select: all;" contenteditable="false" unselectable="on" data-data="qq632951357-link">@${userList[currentIndex].name}&nbsp;</a>`
             );
         }
 
@@ -110,8 +161,8 @@
             let list = document.querySelectorAll(
                 ".option__item[data-data=qq632951357-option]"
             );
-            new ClassHandle(list[currentIndex]).remove("select").disconnect();
-            new ClassHandle(list[index]).add("select").disconnect();
+            list[currentIndex].classList.remove("select");
+            list[index].classList.add("select")
             currentIndex = index;
             scrollTipBody(list[index]);
         }
@@ -196,14 +247,13 @@
         function createUserNode(list = [], parentNode) {
             list.map((v, i) => {
                 let optionItem = document.createElement("div");
-                optionItem.setAttribute("data-data", "qq632951357-option");
-                let optionItemClassHandle = new ClassHandle(optionItem);
+                optionItem.dataset.data = "qq632951357-option";
+                let optionItemClassHandle = optionItem.classList;
                 optionItemClassHandle.add("option__item");
                 let imgDiv = document.createElement("div");
-                let imgDivClassHandle = new ClassHandle(imgDiv);
+                let imgDivClassHandle = imgDiv.classList;
                 imgDivClassHandle.add("option__img-div");
-                imgDivClassHandle = imgDivClassHandle.disconnect();
-                imgDiv.setAttribute("data-data", "qq632951357-option");
+                imgDiv.dataset.data = "qq632951357-option";
                 let defaultImgUrl = "https://s3.ax1x.com/2021/01/22/s5qlgU.png";
                 let githubImgUrl =
                     "https://avatars3.githubusercontent.com/" + v.name;
@@ -247,7 +297,7 @@
          */
         function createTipBody(x, y) {
             let dom = document.createElement("div");
-            dom.setAttribute("data-data", "qq632951357-tip");
+            dom.dataset.data = "qq632951357-tip";
             dom.setAttribute("class", "tip-body");
 
             dom.style.top = x + "px";
@@ -267,7 +317,7 @@
                     tipBody.scrollTo(
                         0,
                         node.offsetTop -
-                            (tipBody.offsetHeight - node.offsetHeight)
+                        (tipBody.offsetHeight - node.offsetHeight)
                     );
                 } else if (tipBody.scrollTop > node.offsetTop) {
                     tipBody.scrollTo(0, node.offsetTop);
@@ -285,7 +335,7 @@
                 // 为提示节点增加额外的样式
                 let style = document.createElement("style");
                 style.type = "text/css";
-                style.setAttribute("data-data", "qq632951357-style");
+                style.dataset.data = "qq632951357-style";
                 let cssText = `
                          .tip-body[data-data="qq632951357-tip"]::-webkit-scrollbar{display:none}
                          .tip-body[data-data="qq632951357-tip"]{width: 200px;height: 150px;background-color: white;position: fixed;display: flex;flex-direction: column;border-radius: 10px;padding: 0 0;box-shadow: 1px 1px 24px 1px rgba(0,0,0,0.1);z-index: 99999;overflow-y: auto;}
@@ -294,7 +344,15 @@
                          .option__item[data-data="qq632951357-option"].mouse-select:not(.select){background-color: #f3f3f3;}
                          .option__img[data-data="qq632951357-option"]{width:20px;height:20px;}
                          .option__img-div[data-data="qq632951357-option"]{border-radius: 100%;overflow: hidden;margin-right: 5px;}
-                         .option__span[data-data="qq632951357-option"]{overflow-x: hidden;text-overflow: ellipsis;max-width: calc(100% - 25px);}`;
+                         .option__span[data-data="qq632951357-option"]{overflow-x: hidden;text-overflow: ellipsis;max-width: calc(100% - 25px);}
+                         .not-select{
+                             -moz-user-select: none; /*火狐*/
+                             -webkit-user-select: none; /*webkit浏览器*/
+                             -ms-user-select: none; /*IE10*/
+                             -khtml-user-select: none; /*早期浏览器*/
+                             user-select: none;
+                             -webkit-touch-callout: none;
+                         }`;
                 try {
                     style.appendChild(document.createTextNode(cssText));
                 } catch (ex) {
@@ -331,6 +389,7 @@
                 oldDiv.remove();
             }
 
+            let maxWindow = parseFloat(window.getComputedStyle(node).width)
             let div = node.cloneNode(true);
             // div.setAttribute('id', 'qq632951357-charLen');
             div.style.position = "absolute";
@@ -342,10 +401,10 @@
             insertAfter(div, node);
             let style = window.getComputedStyle(div);
             let result = {
-                width: parseFloat(style.width),
+                width: parseFloat(style.width) % maxWindow,
                 height: parseFloat(style.height),
             };
-            div.remove();
+            // div.remove();
             return result;
         }
         /**
@@ -357,20 +416,21 @@
          */
         function deleteNode(oldNode, node, range) {
             let flag = false;
+            let childNodes = Array.from(node.childNodes)
             for (let i = 0, len = node.childNodes.length; i < len; i++) {
                 if (oldNode.childNodes[i] == range.focusNode) {
                     flag = true;
-                    node.childNodes[i].textContent = node.childNodes[
+                    childNodes[i].textContent = childNodes[
                         i
                     ].textContent.substr(0, range.focusOffset);
                 } else {
-                    if (!node.childNodes[i]) {
+                    if (!childNodes[i]) {
                         continue;
                     }
                     if (flag) {
-                        node.childNodes[i].remove();
-                    } else if (node.childNodes[i].childNodes.length != 0) {
-                        deleteNode(oldNode, node.childNodes[i], range);
+                        childNodes[i].remove();
+                    } else if (childNodes[i].childNodes.length != 0) {
+                        deleteNode(oldNode, childNodes[i], range);
                     }
                 }
             }
@@ -387,83 +447,6 @@
                 parent.appendChild(newElement);
             } else {
                 parent.insertBefore(newElement, targentElement.nextSibling);
-            }
-        }
-
-        /**
-         * class处理器
-         * 该处理器会监听元素节点变化，请在不需要该对象时使用disconnect销毁该对象，以免带来不必要的资源损耗,处理器也会尝试在元素被删除时进行主动销毁
-         * @param {*} node 要操作的元素节点
-         */
-        class ClassHandle {
-            constructor(node, callback) {
-                this.node = node;
-                this.isDisconnect = false;
-                let observe = new MutationObserver(
-                    (mutationsList, observer) => {
-                        // console.log(mutationsList);
-                        this.reloadClass();
-                    }
-                );
-                this.destroy = () => {
-                    this.disconnect();
-                };
-                node.addEventListener(
-                    "DOMNodeRemovedFromDocument",
-                    this.destroy
-                );
-                observe.observe(node, {
-                    attributes: true,
-                    attributeFilter: ["class"],
-                    childList: true,
-                });
-                this.observe = observe;
-                this.reloadClass();
-            }
-            reloadClass() {
-                let classStr = this.node.getAttribute("class") || "";
-                this.classList = new Set(classStr.split(" "));
-            }
-            checkIsDisconnect() {
-                if (this.isDisconnect) {
-                    throw new ReferenceError("该对象已被销毁");
-                }
-            }
-            changeNodeClass() {
-                this.checkIsDisconnect();
-                this.node.setAttribute(
-                    "class",
-                    Array.from(this.classList).join(" ")
-                );
-            }
-            getClassList() {
-                this.checkIsDisconnect();
-                return Array.from(this.classList);
-            }
-            add(className) {
-                this.checkIsDisconnect();
-                this.classList.add(className);
-                this.changeNodeClass();
-                return this;
-            }
-            remove(className) {
-                this.checkIsDisconnect();
-                this.classList.delete(className);
-                this.changeNodeClass();
-                return this;
-            }
-            has(className) {
-                this.checkIsDisconnect();
-                return this.classList.has(className);
-            }
-            disconnect() {
-                this.observe.disconnect();
-                this.isDisconnect = true;
-                this.node.removeEventListener(
-                    "DOMNodeRemovedFromDocument",
-                    this.destroy
-                );
-                return null;
             }
         }
     }
